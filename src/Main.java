@@ -2,6 +2,7 @@ import java.util.Scanner;
 import java.io.FileWriter;
 import java.io.FileReader;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.util.ArrayList;
 
 class Entry {
@@ -134,5 +135,40 @@ public class Main {
     }
 
     public static void deleteEntry() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Which entry do you want to delete?");
+        fetchEntries();
+        String target = scanner.nextLine();
+        scanner.close();
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader("data.txt"));
+            String line = reader.readLine();
+            String entries = "";
+            while (line != null) {
+                if (line.length() == 0 && line != null) {
+                    line = reader.readLine();
+                    continue;
+                }
+                String[] splitEntry = line.split(":");
+                if (splitEntry.length != 3) {
+                    line = reader.readLine();
+                    continue;
+                }
+                if (splitEntry[0].equals(target)) {
+                    line = reader.readLine();
+                    continue;
+                }
+                entries += line + "\n";
+                line = reader.readLine();
+            }
+            reader.close();
+            BufferedWriter fw = new BufferedWriter(new FileWriter("data.txt"));
+            fw.write(entries);
+            fw.close();
+
+        } catch (Exception err) {
+            System.err.println(err);
+        }
+
     }
 }
