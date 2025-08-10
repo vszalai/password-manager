@@ -1,0 +1,58 @@
+package passwordmanager;
+
+import java.util.Scanner;
+
+class Entry {
+    String id;
+    String name;
+    String password;
+
+    @Override
+    public String toString() {
+        return "ID: " + id + " Name: " + name + " Password: " + password;
+    }
+}
+
+public class Main {
+    private static char[] master;
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        master = FileManagement.StartupCheck(scanner);
+        while (true) {
+            System.out.println("""
+                        What do you want to do?
+                        1. Add a new password
+                        2. View all entries
+                        3. Search for an entry
+                        4. Delete an entry
+                        5. Exit
+                    """);
+            int input = scanner.nextInt();
+            scanner.nextLine();
+            switch (input) {
+                case 1:
+                    FileManagement.addPassword(scanner, master);
+                    break;
+                case 2:
+                    FileManagement.fetchEntries(master);
+                    break;
+                case 3:
+                    FileManagement.findEntry(scanner);
+                    break;
+                case 4:
+                    FileManagement.deleteEntry(scanner);
+                    break;
+                case 5:
+                    scanner.close();
+                    return;
+                default:
+                    System.out.println("Invalid option. Please enter a number between 1 and 5");
+                    break;
+            }
+
+        }
+
+    }
+
+}
