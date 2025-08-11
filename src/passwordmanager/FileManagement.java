@@ -12,10 +12,10 @@ public class FileManagement {
     private static char[] master;
 
     public static char[] StartupCheck(Scanner scanner) {
-        File dataFile = new File("data.txt");
+        File dataFile = new File("verification.txt");
         if (dataFile.exists()) {
             try {
-                BufferedReader reader = new BufferedReader(new FileReader("data.txt"));
+                BufferedReader reader = new BufferedReader(new FileReader("verification.txt"));
                 String line = reader.readLine();
                 while (line != null) {
                     String[] splitLine = line.split("\t");
@@ -45,11 +45,9 @@ public class FileManagement {
 
     private static void CreateDataFile(char[] master) {
         try {
-            FileWriter fw = new FileWriter("data.txt", true);
-            String salt = Encryption.CreateSalt();
-            String verificationToken = Encryption.CreateVerificationToken(master, salt.getBytes());
+            FileWriter fw = new FileWriter("verification.txt", true);
+            String verificationToken = Encryption.CreateVerificationToken(master);
             fw.write("verification" + "\t" + verificationToken + "\n");
-            fw.write("salt" + "\t" + salt + "\n");
             fw.close();
         } catch (Exception err) {
             System.err.println(err);
@@ -66,8 +64,7 @@ public class FileManagement {
         System.out.println("Give this entry a password.");
         entry.password = scanner.nextLine();
         try {
-            entry.password = Encryption.EncryptPassword(master, entry.password.getBytes(),
-                    "jkgd5lkj8sertuy1".getBytes());
+            entry.password = Encryption.EncryptPassword(master, entry.password.getBytes());
         } catch (Exception err) {
             System.err.println(err);
         }

@@ -28,20 +28,18 @@ public class Encryption {
         DecryptPassword(master, token);
     }
 
-    public static String CreateSalt() {
-        return UUID.randomUUID().toString().replace("-", "").substring(0, 16);
-    }
-
-    public static String CreateVerificationToken(char[] master, byte[] salt) throws Exception {
+    public static String CreateVerificationToken(char[] master) throws Exception {
         String random32 = UUID.randomUUID().toString().replace("-", "");
-        return EncryptPassword(master, random32.getBytes(), salt);
+        return EncryptPassword(master, random32.getBytes());
     }
 
-    public static String EncryptPassword(char[] masterPassword, byte[] plainTextPassword, byte[] salt)
+    public static String EncryptPassword(char[] masterPassword, byte[] plainTextPassword)
             throws Exception {
         byte[] iv = new byte[IV_LEN];
         SecureRandom random = new SecureRandom();
         random.nextBytes(iv);
+        byte[] salt = new byte[SALT_LEN];
+        random.nextBytes(salt);
         SecretKey key = deriveKey(masterPassword, salt);
 
         Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
