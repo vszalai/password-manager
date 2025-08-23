@@ -11,6 +11,14 @@ class Entry {
     public String toString() {
         return "ID: " + id + " Name: " + name + " Password: " + password;
     }
+
+    public boolean isValid() {
+        if (id != null && name != null && password != null) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
 
 public class Main {
@@ -32,16 +40,16 @@ public class Main {
             scanner.nextLine();
             switch (input) {
                 case 1:
-                    FileManagement.addPassword(scanner, master);
+                    UserInput.addPassword(scanner, master);
                     break;
                 case 2:
-                    FileManagement.fetchEntries(master);
+                    Utils.printEntries(Utils.fetchEntries(master));
                     break;
                 case 3:
-                    FileManagement.findEntry(scanner);
+                    UserInput.findEntry(scanner, master);
                     break;
                 case 4:
-                    FileManagement.deleteEntry(scanner);
+                    UserInput.deleteEntry(scanner);
                     break;
                 case 5:
                     scanner.close();
