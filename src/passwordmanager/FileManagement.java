@@ -10,7 +10,7 @@ import java.io.File;
 public class FileManagement {
     private static char[] master;
 
-    public static char[] StartupCheck(Scanner scanner) {
+    public static char[] startupCheck(Scanner scanner) {
         File dataFile = new File("verification.txt");
         if (dataFile.exists()) {
             try {
@@ -36,13 +36,13 @@ public class FileManagement {
             System.out.println(
                     "Give a master password that will be used for encryption. Please write this password down. If you lose it, you will not be able to access any of the stored passwords. ");
             master = System.console().readPassword();
-            CreateDataFile(master);
+            createDataFile(master);
             return master;
         }
         return master;
     }
 
-    private static void CreateDataFile(char[] master) {
+    private static void createDataFile(char[] master) {
         try {
             FileWriter fw = new FileWriter("verification.txt", true);
             String verificationToken = Encryption.CreateVerificationToken(master);
@@ -54,7 +54,7 @@ public class FileManagement {
 
     }
 
-    public static void writePassword(Entry entry) {
+    public static void writeEntry(Entry entry) {
         try {
             FileWriter fw = new FileWriter("data.txt", true);
             fw.write(entry.id + "\t" + entry.name + "\t" + entry.password + "\n");
@@ -86,9 +86,9 @@ public class FileManagement {
                 entries += line + "\n";
                 line = reader.readLine();
             }
-            reader.close();
             BufferedWriter fw = new BufferedWriter(new FileWriter("data.txt"));
             fw.write(entries);
+            reader.close();
             fw.close();
 
         } catch (Exception err) {

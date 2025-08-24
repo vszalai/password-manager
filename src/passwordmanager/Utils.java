@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.security.SecureRandom;
+import java.util.Collections;
 
 public class Utils {
     public static ArrayList<Entry> fetchEntries(char[] master) {
@@ -25,11 +27,7 @@ public class Utils {
                 Entry entry = new Entry();
                 entry.id = splitEntry[0];
                 entry.name = splitEntry[1];
-                try {
-                    entry.password = new String(Encryption.DecryptPassword(master, splitEntry[2]));
-                } catch (Exception err) {
-                    System.out.println(err);
-                }
+                entry.password = splitEntry[2];
 
                 entries.add(entry);
                 line = reader.readLine();
@@ -67,7 +65,7 @@ public class Utils {
                 if (splitEntry[0].equals(target)) {
                     entry.id = splitEntry[0];
                     entry.name = splitEntry[1];
-                    entry.password = new String(Encryption.DecryptPassword(master, splitEntry[2]));
+                    entry.password = new String(Encryption.decryptPassword(master, splitEntry[2]));
 
                     reader.close();
                     return entry;
@@ -81,6 +79,34 @@ public class Utils {
         }
         return entry;
 
+    }
+
+    public static boolean isDuplicateID(String id, char[] master) {
+        ArrayList<Entry> entries = fetchEntries(master);
+        return entries.stream().anyMatch(entry -> entry.id.equals(id));
+    }
+
+    public static String generatePassword(char[] master, int length) {
+        SecureRandom random = new SecureRandom();
+        String UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String LOWER = "abcdefghijklmnopqrstuvwxyz";
+        String DIGITS = "0123456789";
+        String SPECIAL = "!@#$%^&*()-_=+[]{}|;:,.<>?/";
+        String ALL = UPPER + LOWER + DIGITS + SPECIAL;
+        ArrayList<Character> generatedPassword = new ArrayList<>();
+        generatedPassword.add(UPPER.charAt(random.nextInt(UPPER.length())));
+        generatedPassword.add(LOWER.charAt(random.nextInt(LOWER.length())));
+        generatedPassword.add(DIGITS.charAt(random.nextInt(DIGITS.length())));
+        generatedPassword.add(SPECIAL.charAt(random.nextInt(SPECIAL.length())));
+        for (int i = 4; i < length; i++) {
+            generatedPassword.add(ALL.charAt(random.nextInt(ALL.length())));
+        }
+        Collections.shuffle(generatedPassword, random);
+        StringBuilder shuffledPassword = new StringBuilder();
+        for (Character c : generatedPassword) {
+            shuffledPassword.append(c);
+        }
+        return shuffledPassword.toString();
     }
 
 }

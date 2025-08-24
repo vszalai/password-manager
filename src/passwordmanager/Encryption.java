@@ -25,15 +25,15 @@ public class Encryption {
     }
 
     public static void VerifyMasterPassword(char[] master, String token) throws Exception {
-        DecryptPassword(master, token);
+        decryptPassword(master, token);
     }
 
     public static String CreateVerificationToken(char[] master) throws Exception {
         String random32 = UUID.randomUUID().toString().replace("-", "");
-        return EncryptPassword(master, random32.getBytes());
+        return encryptPassword(master, random32.getBytes());
     }
 
-    public static String EncryptPassword(char[] masterPassword, byte[] plainTextPassword)
+    public static String encryptPassword(char[] masterPassword, byte[] plainTextPassword)
             throws Exception {
         byte[] iv = new byte[IV_LEN];
         SecureRandom random = new SecureRandom();
@@ -55,7 +55,7 @@ public class Encryption {
         return Base64.getEncoder().encodeToString(buffer.array());
     }
 
-    public static byte[] DecryptPassword(char[] masterPassword, String base64Data) throws Exception {
+    public static byte[] decryptPassword(char[] masterPassword, String base64Data) throws Exception {
         byte[] data = Base64.getDecoder().decode(base64Data);
         ByteBuffer buffer = ByteBuffer.wrap(data);
         byte[] salt = new byte[SALT_LEN];

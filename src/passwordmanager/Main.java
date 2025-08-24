@@ -26,7 +26,7 @@ public class Main {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        master = FileManagement.StartupCheck(scanner);
+        master = FileManagement.startupCheck(scanner);
         while (true) {
             System.out.println("""
                         What do you want to do?
@@ -40,7 +40,7 @@ public class Main {
             scanner.nextLine();
             switch (input) {
                 case 1:
-                    UserInput.addPassword(scanner, master);
+                    UserInput.addEntry(scanner, master);
                     break;
                 case 2:
                     Utils.printEntries(Utils.fetchEntries(master));
