@@ -43,7 +43,7 @@ public class Main {
                     UserInput.addEntry(scanner, master);
                     break;
                 case 2:
-                    Utils.printEntries(Utils.fetchEntries(master));
+                    Utils.printEntries(Utils.fetchEntries(master), master);
                     break;
                 case 3:
                     UserInput.findEntry(scanner, master);

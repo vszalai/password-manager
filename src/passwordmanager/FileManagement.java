@@ -66,6 +66,7 @@ public class FileManagement {
 
     public static void deleteEntry(Scanner scanner, String target) {
         try {
+            boolean deleted = false;
             BufferedReader reader = new BufferedReader(new FileReader("data.txt"));
             String line = reader.readLine();
             String entries = "";
@@ -81,15 +82,21 @@ public class FileManagement {
                 }
                 if (splitEntry[0].equals(target)) {
                     line = reader.readLine();
+                    deleted = true;
                     continue;
                 }
                 entries += line + "\n";
                 line = reader.readLine();
             }
-            BufferedWriter fw = new BufferedWriter(new FileWriter("data.txt"));
-            fw.write(entries);
+            if (deleted) {
+                BufferedWriter fw = new BufferedWriter(new FileWriter("data.txt"));
+                fw.write(entries);
+                fw.close();
+            } else {
+                System.out.println(String.format("No entry found with the name %s, nothing was deleted.", target));
+            }
+
             reader.close();
-            fw.close();
 
         } catch (Exception err) {
             System.err.println(err);

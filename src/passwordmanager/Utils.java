@@ -41,8 +41,14 @@ public class Utils {
         return entries;
     }
 
-    public static void printEntries(ArrayList<Entry> entries) {
+    public static void printEntries(ArrayList<Entry> entries, char[] master) {
         for (Entry entry : entries) {
+            try {
+                entry.password = new String(Encryption.decryptPassword(master, entry.password));
+            } catch (Exception err) {
+                System.out.println(err);
+            }
+
             System.out.println(entry);
         }
     }
