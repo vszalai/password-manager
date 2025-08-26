@@ -75,10 +75,21 @@ public class UserInput {
         FileManagement.writeEntry(entry);
     }
 
-    public static void deleteEntry(Scanner scanner) {
+    public static void deleteEntry(Scanner scanner, char[] master) {
         System.out.println("Which entry do you want to delete?");
         String target = scanner.nextLine();
-        FileManagement.deleteEntry(scanner, target);
+        Entry targetEntry = Utils.findEntry(scanner, target, master);
+        while (true) {
+            System.out.println("Are you sure you want to delete this entry? (y/n) \n" + targetEntry.toString());
+            String answer = scanner.nextLine().toLowerCase();
+            if (answer.equals("y")) {
+                FileManagement.deleteEntry(scanner, target);
+            } else if (answer.equals("n")) {
+                System.out.println("The entry was not deleted.");
+                return;
+            }
+        }
+
     }
 
     public static void findEntry(Scanner scanner, char[] master) {
@@ -86,11 +97,16 @@ public class UserInput {
         String target = scanner.nextLine();
         Entry entry = Utils.findEntry(scanner, target, master);
         if (entry.isValid()) {
+            try {
+                entry.password = new String(Encryption.decryptPassword(master, entry.password));
+            } catch (Exception err) {
+                System.out.println(err);
+            }
+
             System.out.println("Entry found: " + entry);
         } else {
             System.out.println("Did not find entry with id: " + target);
         }
-
     }
 
 }

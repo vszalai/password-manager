@@ -13,7 +13,7 @@ class Entry {
     }
 
     public boolean isValid() {
-        if (id != null && name != null && password != null) {
+        if (id != null && name != null && password != null && !id.isEmpty() && !name.isEmpty() && !password.isEmpty()) {
             return true;
         } else {
             return false;
@@ -49,7 +49,7 @@ public class Main {
                     UserInput.findEntry(scanner, master);
                     break;
                 case 4:
-                    UserInput.deleteEntry(scanner);
+                    UserInput.deleteEntry(scanner, master);
                     break;
                 case 5:
                     scanner.close();

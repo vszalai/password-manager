@@ -71,7 +71,7 @@ public class Utils {
                 if (splitEntry[0].equals(target)) {
                     entry.id = splitEntry[0];
                     entry.name = splitEntry[1];
-                    entry.password = new String(Encryption.decryptPassword(master, splitEntry[2]));
+                    entry.password = splitEntry[2];
 
                     reader.close();
                     return entry;
