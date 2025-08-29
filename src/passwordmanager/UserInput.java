@@ -1,19 +1,22 @@
 package passwordmanager;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class UserInput {
     public static void addEntry(Scanner scanner, char[] master) {
         Entry entry = new Entry();
         while (true) {
-            System.out.println("Give this entry a unique name.");
+            System.out.println("Give this entry a unique ID.");
             entry.id = scanner.nextLine();
             if (Utils.isDuplicateID(entry.id, master)) {
-                System.out.println("An entry with that name already exists. Please give this entry a unique name.");
+                System.out.println("An entry with that ID already exists. Please give this entry a unique ID.");
                 continue;
             }
             if (entry.id == null || entry.id.length() == 0 || entry.id.split(" ").length == 0) {
-                System.out.println("Invalid name. Please try another.");
+                System.out.println("Invalid ID. Please try another.");
                 continue;
             }
             if (!Utils.isDuplicateID(entry.id, master)) {
@@ -33,7 +36,7 @@ public class UserInput {
         String answer;
         int pwLength;
         while (true) {
-            System.out.println("Do you want to use a randomly generated password? (y/n)");
+            System.out.println("Do you want to use a randomly generated password? Will be echoed. (y/n)");
             answer = scanner.nextLine().toLowerCase();
             if (!answer.equals("y") && !answer.equals("n")) {
                 System.out.println("Invalid answer.");
@@ -58,8 +61,8 @@ public class UserInput {
             break;
         }
         while (answer.equals("n")) {
-            System.out.println("Give this entry a password.");
-            entry.password = scanner.nextLine();
+            System.out.println("Give this entry a password. Will not be echoed.");
+            entry.password = new String(System.console().readPassword());
             if (entry.password == null || entry.password.length() == 0 || entry.password.split(" ").length == 0) {
                 System.out.println("Invalid password. Please try another.");
                 continue;
@@ -67,11 +70,6 @@ public class UserInput {
             break;
         }
 
-        try {
-            entry.password = Encryption.encryptPassword(master, entry.password.getBytes());
-        } catch (Exception err) {
-            System.err.println(err);
-        }
         FileManagement.writeEntry(entry);
     }
 
@@ -83,7 +81,13 @@ public class UserInput {
             System.out.println("Are you sure you want to delete this entry? (y/n) \n" + targetEntry.toString());
             String answer = scanner.nextLine().toLowerCase();
             if (answer.equals("y")) {
-                FileManagement.deleteEntry(scanner, target);
+                boolean result = FileManagement.deleteEntry(scanner, target);
+                if (result) {
+                    System.out.println("Entry deleted.");
+                } else {
+                    System.out.println(String.format("No entry found with the name %s, nothing was deleted.", target));
+                }
+                return;
             } else if (answer.equals("n")) {
                 System.out.println("The entry was not deleted.");
                 return;
@@ -107,6 +111,86 @@ public class UserInput {
         } else {
             System.out.println("Did not find entry with id: " + target);
         }
+    }
+
+    public static char[] initializeMasterPassword(Scanner scanner) {
+
+        while (true) {
+            System.out.println(
+                    "Give a master password that will be used for encryption. Please write this password down in a secure location. If you lose it, you will not be able to access any of the stored passwords. ");
+            char[] master = System.console().readPassword();
+            if (master == null || master.length == 0) {
+                System.out.println("Invalid password.");
+                continue;
+            }
+            System.out.println("Please confirm your master password.");
+            char[] masterconfirm = System.console().readPassword();
+            if (!Arrays.equals(master, masterconfirm)) {
+                System.out.println("Passwords do not match.\n");
+                continue;
+            } else {
+                return master;
+            }
+
+        }
+
+    }
+
+    public static void updateEntry(Scanner scanner, char[] master) {
+        System.out.println("Which entry do you want to update?");
+        String target = scanner.nextLine();
+        ArrayList<Entry> entries = Utils.fetchEntries(master);
+        if (!entries.stream().anyMatch(entry -> entry.id.equals(target))) {
+            System.out.println("No entry found with that ID.");
+            return;
+        }
+        Entry targetEntry = entries.stream().filter(entry -> entry.id.equals(target)).findFirst().orElse(null);
+        try {
+            targetEntry.password = new String(Encryption.decryptPassword(master, targetEntry.password));
+        } catch (Exception err) {
+            System.out.println(err);
+        }
+
+        System.out.println(targetEntry.toString());
+        String input;
+        Entry newEntry = new Entry();
+        while (true) {
+            System.out.println("Type in the new id. (Leave empty if unchanged)");
+            input = scanner.nextLine();
+            if (input == null || input.length() == 0 || input.split(" ").length == 0) {
+                newEntry.id = targetEntry.id;
+                break;
+            } else {
+                newEntry.id = input;
+                break;
+            }
+        }
+        while (true) {
+            System.out.println("Type in the new username/email. (Leave empty if unchanged)");
+            input = scanner.nextLine();
+            if (input == null || input.length() == 0 || input.split(" ").length == 0) {
+                newEntry.name = targetEntry.name;
+                break;
+            } else {
+                newEntry.name = input;
+                break;
+            }
+        }
+        while (true) {
+            System.out.println("Type in the new password. (Leave empty if unchanged)");
+            char[] password = System.console().readPassword();
+            if (input == null || input.length() == 0 || input.split(" ").length == 0) {
+                newEntry.password = targetEntry.password;
+                break;
+            } else {
+                newEntry.password = new String(password);
+                break;
+            }
+        }
+
+        FileManagement.deleteEntry(scanner, targetEntry.id);
+        FileManagement.writeEntry(newEntry);
+        System.out.println(String.format("Entry with id %s updated.", newEntry.id));
     }
 
 }

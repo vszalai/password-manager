@@ -43,12 +43,6 @@ public class Utils {
 
     public static void printEntries(ArrayList<Entry> entries, char[] master) {
         for (Entry entry : entries) {
-            try {
-                entry.password = new String(Encryption.decryptPassword(master, entry.password));
-            } catch (Exception err) {
-                System.out.println(err);
-            }
-
             System.out.println(entry);
         }
     }

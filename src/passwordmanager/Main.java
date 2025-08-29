@@ -1,5 +1,6 @@
 package passwordmanager;
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 class Entry {
@@ -31,13 +32,21 @@ public class Main {
             System.out.println("""
                         What do you want to do?
                         1. Add a new password
-                        2. View all entries
-                        3. Search for an entry
+                        2. View all entries (Won't show unencrypted passwords.)
+                        3. Search for an entry (Unencrypted password will be shown.)
                         4. Delete an entry
-                        5. Exit
+                        5. Update an entry
+                        6. Exit
                     """);
-            int input = scanner.nextInt();
+            int input;
+            try {
+                input = scanner.nextInt();
+
+            } catch (InputMismatchException err) {
+                input = 0;
+            }
             scanner.nextLine();
+
             switch (input) {
                 case 1:
                     UserInput.addEntry(scanner, master);
@@ -52,6 +61,9 @@ public class Main {
                     UserInput.deleteEntry(scanner, master);
                     break;
                 case 5:
+                    UserInput.updateEntry(scanner, master);
+                    break;
+                case 6:
                     scanner.close();
                     return;
                 default:

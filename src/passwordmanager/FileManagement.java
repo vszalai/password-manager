@@ -33,9 +33,7 @@ public class FileManagement {
             }
 
         } else {
-            System.out.println(
-                    "Give a master password that will be used for encryption. Please write this password down. If you lose it, you will not be able to access any of the stored passwords. ");
-            master = System.console().readPassword();
+            master = UserInput.initializeMasterPassword(scanner);
             createDataFile(master);
             return master;
         }
@@ -56,6 +54,7 @@ public class FileManagement {
 
     public static void writeEntry(Entry entry) {
         try {
+            entry.password = Encryption.encryptPassword(master, entry.password.getBytes());
             FileWriter fw = new FileWriter("data.txt", true);
             fw.write(entry.id + "\t" + entry.name + "\t" + entry.password + "\n");
             fw.close();
@@ -64,12 +63,12 @@ public class FileManagement {
         }
     }
 
-    public static void deleteEntry(Scanner scanner, String target) {
+    public static boolean deleteEntry(Scanner scanner, String target) {
+        boolean deleted = false;
         try {
-            boolean deleted = false;
             BufferedReader reader = new BufferedReader(new FileReader("data.txt"));
             String line = reader.readLine();
-            String entries = "";
+            StringBuilder entries = new StringBuilder();
             while (line != null) {
                 if (line.length() == 0 && line != null) {
                     line = reader.readLine();
@@ -85,15 +84,14 @@ public class FileManagement {
                     deleted = true;
                     continue;
                 }
-                entries += line + "\n";
+
+                entries.append(line + "\n");
                 line = reader.readLine();
             }
             if (deleted) {
                 BufferedWriter fw = new BufferedWriter(new FileWriter("data.txt"));
-                fw.write(entries);
+                fw.write(entries.toString());
                 fw.close();
-            } else {
-                System.out.println(String.format("No entry found with the name %s, nothing was deleted.", target));
             }
 
             reader.close();
@@ -101,7 +99,7 @@ public class FileManagement {
         } catch (Exception err) {
             System.err.println(err);
         }
-
+        return deleted;
     }
 
 }
