@@ -10,7 +10,7 @@ import java.security.spec.KeySpec;
 import java.util.Base64;
 import java.util.UUID;
 
-public class Encryption {
+public class Crypto {
     private static final int SALT_LEN = 16;
     private static final int IV_LEN = 12;
     private static final int KEY_LEN = 256;

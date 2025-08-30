@@ -36,7 +36,8 @@ public class Main {
                         3. Search for an entry (Unencrypted password will be shown.)
                         4. Delete an entry
                         5. Update an entry
-                        6. Exit
+                        6. Change master password
+                        7. Exit
                     """);
             int input;
             try {
@@ -64,6 +65,8 @@ public class Main {
                     UserInput.updateEntry(scanner, master);
                     break;
                 case 6:
+                    UserInput.changeMaster(scanner, master);
+                case 7:
                     scanner.close();
                     return;
                 default:

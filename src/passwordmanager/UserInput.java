@@ -1,6 +1,5 @@
 package passwordmanager;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -102,7 +101,7 @@ public class UserInput {
         Entry entry = Utils.findEntry(scanner, target, master);
         if (entry.isValid()) {
             try {
-                entry.password = new String(Encryption.decryptPassword(master, entry.password));
+                entry.password = new String(Crypto.decryptPassword(master, entry.password));
             } catch (Exception err) {
                 System.out.println(err);
             }
@@ -146,7 +145,7 @@ public class UserInput {
         }
         Entry targetEntry = entries.stream().filter(entry -> entry.id.equals(target)).findFirst().orElse(null);
         try {
-            targetEntry.password = new String(Encryption.decryptPassword(master, targetEntry.password));
+            targetEntry.password = new String(Crypto.decryptPassword(master, targetEntry.password));
         } catch (Exception err) {
             System.out.println(err);
         }
@@ -191,6 +190,53 @@ public class UserInput {
         FileManagement.deleteEntry(scanner, targetEntry.id);
         FileManagement.writeEntry(newEntry);
         System.out.println(String.format("Entry with id %s updated.", newEntry.id));
+    }
+
+    public static void changeMaster(Scanner scanner, char[] master) {
+        while (true) {
+            System.out.println("Type in your old master password.");
+            char[] temp = System.console().readPassword();
+            if (!Arrays.equals(master, temp)) {
+                System.out.println("Master password invalid.");
+                continue;
+            }
+            break;
+        }
+        char[] newMaster;
+        while (true) {
+            System.out.println("Type in your new master password.");
+            newMaster = System.console().readPassword();
+            if (newMaster == null || newMaster.length == 0) {
+                System.out.println("Invalid password, should have at least the length of 1.");
+                continue;
+            }
+            System.out.println("Confirm your new master password.");
+            char[] newMasterConfirm = System.console().readPassword();
+            if (newMasterConfirm == null || newMasterConfirm.length == 0) {
+                System.out.println("Invalid password, should have at least the length of 1.");
+                continue;
+            }
+            if (!Arrays.equals(newMaster, newMasterConfirm)) {
+                System.out.println("Passwords do not match.");
+                continue;
+            }
+            break;
+        }
+
+        boolean createVerification = FileManagement.createDataFile(newMaster);
+        if (createVerification) {
+            System.out.println("Master password changed, reencrypting all entries.");
+        } else {
+            System.out.println("Master password change failed.");
+            return;
+        }
+        try {
+            FileManagement.reEncrypt(master, newMaster);
+            System.out.println("Re-encryption successful.");
+            return;
+        } catch (Exception err) {
+            System.out.println("Re-encryption unsuccessful with error message: " + err);
+        }
     }
 
 }

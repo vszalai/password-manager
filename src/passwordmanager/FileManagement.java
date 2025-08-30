@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.Scanner;
 import java.io.File;
+import java.util.ArrayList;
 
 public class FileManagement {
     private static char[] master;
@@ -21,7 +22,7 @@ public class FileManagement {
                     if (splitLine[0].equals("verification")) {
                         System.out.println("Type in your master password: ");
                         master = System.console().readPassword();
-                        Encryption.VerifyMasterPassword(master, splitLine[1]);
+                        Crypto.VerifyMasterPassword(master, splitLine[1]);
                         reader.close();
                         return master;
                     }
@@ -40,21 +41,23 @@ public class FileManagement {
         return master;
     }
 
-    private static void createDataFile(char[] master) {
+    public static boolean createDataFile(char[] master) {
         try {
-            FileWriter fw = new FileWriter("verification.txt", true);
-            String verificationToken = Encryption.CreateVerificationToken(master);
+            FileWriter fw = new FileWriter("verification.txt");
+            String verificationToken = Crypto.CreateVerificationToken(master);
             fw.write("verification" + "\t" + verificationToken + "\n");
             fw.close();
         } catch (Exception err) {
             System.err.println(err);
+            return false;
         }
+        return true;
 
     }
 
     public static void writeEntry(Entry entry) {
         try {
-            entry.password = Encryption.encryptPassword(master, entry.password.getBytes());
+            entry.password = Crypto.encryptPassword(master, entry.password.getBytes());
             FileWriter fw = new FileWriter("data.txt", true);
             fw.write(entry.id + "\t" + entry.name + "\t" + entry.password + "\n");
             fw.close();
@@ -100,6 +103,22 @@ public class FileManagement {
             System.err.println(err);
         }
         return deleted;
+    }
+
+    public static void reEncrypt(char[] oldMaster, char[] newMaster) throws Exception {
+        ArrayList<Entry> entries = Utils.fetchEntries(oldMaster);
+        try {
+            FileWriter fw = new FileWriter("data.txt");
+            for (Entry entry : entries) {
+                entry.password = new String(Crypto.decryptPassword(oldMaster, entry.password));
+                entry.password = Crypto.encryptPassword(newMaster, entry.password.getBytes());
+                fw.write(entry.id + "\t" + entry.name + "\t" + entry.password + "\n");
+            }
+            fw.close();
+        } catch (Exception err) {
+            return;
+        }
+        return;
     }
 
 }
